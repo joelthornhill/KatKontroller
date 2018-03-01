@@ -2,7 +2,8 @@
 
 void setup() {
 
-  Serial.begin(9600);
+  if(debug) Serial.begin(9600);
+  else Serial.begin(31250);
 
   // buttons as input pins
   for (int i = 0; i < 4; i = i + 1) {

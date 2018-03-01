@@ -3,23 +3,29 @@
 struct Message {
   int pcChannel;
   int ccMessage;
+
   void sendMessage(boolean isControl, boolean status) {
     if (!isControl) {
-      Serial.println("send pc message");
-      Serial.println(pcChannel);
-//            MIDI.sendProgramChange(pcChannel, MIDI_CHANNEl);
-    }
-    else if (isControl && status) {
-      Serial.println("send cc message");
-      Serial.println(ccMessage);
-      Serial.println(127);
-      //      MIDI.sendControlChange(ccMessage, 127, MIDI_CHANNEl);
-    }
-    else if (isControl && !status) {
-      Serial.println("send cc message");
-      Serial.println(ccMessage);
-      Serial.println(0);
-      //      MIDI.sendControlChange(ccMessage, 0, MIDI_CHANNEl);
+      if (debug) {
+        Serial.println("send pc message");
+        Serial.println(pcChannel);
+      } else {
+        MIDI.sendProgramChange(pcChannel, MIDI_CHANNEl);
+      }
+    } else if (isControl && status) {
+      if (debug) {
+        Serial.println("send cc message on");
+        Serial.println(ccMessage);
+      } else {
+        MIDI.sendControlChange(ccMessage, 127, MIDI_CHANNEl);
+      }
+    } else if (isControl && !status) {
+      if (debug) {
+        Serial.println("send cc message off");
+        Serial.println(ccMessage);
+      } else {
+        MIDI.sendControlChange(ccMessage, 0, MIDI_CHANNEl);
+      }
     }
   }
 };

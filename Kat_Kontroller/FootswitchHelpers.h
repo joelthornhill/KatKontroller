@@ -85,6 +85,12 @@ void turnOnFxLeds() {
   }
 }
 
+/*
+   Switches mode between channel and fx
+   If channel mode then turn off fx leds
+   If fx mode turn on fx leds and the mode led
+   TODO: Can I remove the turnOffLeds line?
+*/
 void changeMode(FOOTSWITCH &fsw) {
   turnOffLeds(false);
   MODE = !MODE; // switch controller MODE

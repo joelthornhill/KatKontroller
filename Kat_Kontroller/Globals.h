@@ -3,6 +3,8 @@
 
 MIDI_CREATE_INSTANCE(HardwareSerial, Serial, MIDI);
 
+int debug = 0;
+
 boolean MODE = 0; // 0 = PC, 1 == CC
 const int MIDI_CHANNEl = 1;
 
