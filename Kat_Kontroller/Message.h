@@ -17,14 +17,14 @@ struct Message {
         Serial.println("send cc message on");
         Serial.println(ccMessage);
       } else {
-        MIDI.sendControlChange(ccMessage, 127, MIDI_CHANNEl);
+        MIDI.sendControlChange(ccMessage, ccOn, MIDI_CHANNEl);
       }
     } else if (isControl && !status) {
       if (debug) {
         Serial.println("send cc message off");
         Serial.println(ccMessage);
       } else {
-        MIDI.sendControlChange(ccMessage, 0, MIDI_CHANNEl);
+        MIDI.sendControlChange(ccMessage, ccOff, MIDI_CHANNEl);
       }
     }
   }
