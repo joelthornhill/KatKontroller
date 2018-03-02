@@ -2,21 +2,14 @@
 
 /*
    Save fx settings so that when switching between modes, correct leds and statuses are shown
-   - first find the settings associated with the current channel
+   - find the settings associated with the current channel
    - check which button was pressed and update associated setting
-   - TODO: link button to setting better to avoid ifs
 */
 void updateFx(boolean value, FOOTSWITCH &fsw) {
   for (int i = 0; i < 3; i = i + 1) {
-    if (settings[i] -> channel == currentChannel) {
-      if (fsw.button == 2) {
-        settings[i] -> fx1 = value;
-      }
-      else if (fsw.button == 3) {
-        settings[i] -> fx2 = value;
-      }
-      else if (fsw.button == 4) {
-        settings[i] -> fx3 = value;
+    for (int j = 0; j < 3; j = j + 1) {
+      if (settings[i] -> channel == currentChannel && fsw.button == footswitches[j].button) {
+        settings[i] -> setFx(j, value);
       }
     }
   }
@@ -48,9 +41,9 @@ void turnFxOn(FOOTSWITCH &fsw) {
 */
 void resetFx() {
   for (int i = 0; i < 3; i = i + 1) {
-    settings[i] -> fx1 = defaults[i].fx1;
-    settings[i] -> fx2 = defaults[i].fx2;
-    settings[i] -> fx3 = defaults[i].fx3;
+    for (int j = 0; j < 3; j = j + 1) {
+      settings[i] -> setFx(j, defaults[i].getFx(j));
+    }
   }
 }
 
@@ -62,7 +55,6 @@ void resetFx() {
    - set currentChannel to the new channel
 */
 void setChannel(FOOTSWITCH &fsw) {
-  // switch channel and reset fx settings
   resetFx();
   turnOffLeds(true);
   currentLed = fsw.led;
@@ -77,10 +69,10 @@ void setChannel(FOOTSWITCH &fsw) {
 */
 void turnOnFxLeds() {
   for (int i = 0; i < 3; i = i + 1) {
-    if (settings[i] -> channel == currentChannel) {
-      if (settings[i] -> fx1) footswitches[0].led.turnOn(true);
-      if (settings[i] -> fx2) footswitches[1].led.turnOn(true);
-      if (settings[i] -> fx3) footswitches[2].led.turnOn(true);
+    for (int j = 0; j < 3; j = j + 1) {
+      if (settings[i] -> channel == currentChannel && settings[i] -> getFx(j)) {
+        footswitches[j].led.turnOn(true);
+      }
     }
   }
 }
