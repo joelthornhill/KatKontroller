@@ -1,16 +1,26 @@
-#include "Footswitch.h"
-
-struct helper {
+struct Helpers {
   FOOTSWITCH &fsw;
   int &currentChannel;
   LED &currentLed;
+  boolean &MODE;
+
+  void turnOffLeds(boolean fx, LED leds[]) {
+    for (int i = 0; i < 4; i = i + 1) {
+      leds[i].turnOff(fx);
+    }
+  }
+
+  void turnOffFxLeds(LED leds[]) {
+    turnOffLeds(true, leds);
+    currentLed.turnOn(true);
+  }
 
   /*
     When channel is changed Katana does not store fx statuses
     Therefore reset back to defaults
     TODO: Fire off cc messages along with channel change to avoid this
   */
-  void resetFx(ChannelSetting *settings[]) {
+  void resetFx(ChannelSetting *settings[], ChannelSetting defaults[]) {
     for (int i = 0; i < 3; i = i + 1) {
       for (int j = 0; j < 3; j = j + 1) {
         settings[i] -> setFx(j, defaults[i].getFx(j));
@@ -31,7 +41,7 @@ struct helper {
      - find the settings associated with the current channel
      - check which button was pressed and update associated setting
   */
-  void updateFx(boolean value, ChannelSetting *settings[]) {
+  void updateFx(boolean value, ChannelSetting *settings[], FOOTSWITCH footswitches[]) {
     for (int i = 0; i < 3; i = i + 1) {
       for (int j = 0; j < 3; j = j + 1) {
         if (settings[i] -> channel == currentChannel && fsw.button == footswitches[j].button) {
@@ -44,10 +54,10 @@ struct helper {
   /*
      Turn on fx with midi message, turn on led and save settings
   */
-  void turnFxOn(ChannelSetting *settings[]) {
+  void turnFxOn(ChannelSetting *settings[], FOOTSWITCH footswitches[] ) {
     fsw.message.sendMessage(MODE, true);
     fsw.led.turnOn(true);
-    updateFx(true, settings);
+    updateFx(true, settings, footswitches);
   }
 
   /*
@@ -57,9 +67,9 @@ struct helper {
      - send midi message
      - set currentChannel to the new channel
   */
-  void setChannel(ChannelSetting *settings[]) {
-    resetFx(settings);
-    turnOffLeds(true);
+  void setChannel(ChannelSetting *settings[], LED leds[], ChannelSetting defaults[]) {
+    resetFx(settings, defaults);
+    turnOffLeds(true, leds);
     currentLed = fsw.led;
     fsw.message.sendMessage(MODE, true);
     fsw.led.turnOn(false);
@@ -71,7 +81,7 @@ struct helper {
      Find settings for current channel
      For each fx turn on led if associated setting is set to true
   */
-  void turnOnFxLeds(ChannelSetting *settings[]) {
+  void turnOnFxLeds(ChannelSetting *settings[], FOOTSWITCH footswitches[]) {
     for (int i = 0; i < 3; i = i + 1) {
       for (int j = 0; j < 3; j = j + 1) {
         if (settings[i] -> channel == currentChannel && settings[i] -> getFx(j)) {
@@ -87,14 +97,14 @@ struct helper {
      If fx mode turn on fx leds and the mode led
      TODO: Can I remove the turnOffLeds line?
   */
-  void changeMode(ChannelSetting *settings[]) {
-    turnOffLeds(false);
+  void changeMode(ChannelSetting *settings[], LED leds[], FOOTSWITCH footswitches[] ) {
+    turnOffLeds(false, leds);
     MODE = !MODE; // switch controller MODE
     if (!MODE) {
-      turnOffFxLeds(currentLed);
+      turnOffFxLeds(leds);
     }
     else {
-      turnOnFxLeds(settings);
+      turnOnFxLeds(settings, footswitches);
       fsw.led.turnOn(false);
     }
   }
@@ -105,10 +115,10 @@ struct helper {
      If function press -> change mode
      otherwise turn on fx
   */
-  void footswitchOn(ChannelSetting *settings[]) {
-    if (!MODE && !fsw.func) setChannel(settings);
-    else if (fsw.func) changeMode(settings);
-    else turnFxOn(settings);
+  void footswitchOn(ChannelSetting *settings[], LED leds[], FOOTSWITCH footswitches[], ChannelSetting defaults[]) {
+    if (!MODE && !fsw.func) setChannel(settings, leds, defaults);
+    else if (fsw.func) changeMode(settings, leds, footswitches);
+    else turnFxOn(settings, footswitches);
   }
 
 
@@ -121,28 +131,14 @@ struct helper {
      - If CC mode and fxStatus is 1
         then footswitch off
   */
-  void checkFootswitch(ChannelSetting *settings[]) {
+  void checkFootswitch(ChannelSetting *settings[], LED leds[], FOOTSWITCH footswitches[], ChannelSetting defaults[]) {
     if ((!MODE) || (!fsw.led.fxStatus && MODE) || fsw.func) {
-      footswitchOn(settings);
+      footswitchOn(settings, leds, footswitches, defaults);
     }
     else if (fsw.led.fxStatus && MODE) {
-      updateFx(false, settings);
+      updateFx(false, settings, footswitches);
       turnFxOff();
     }
   }
 
 };
-
-/*
-   Reads the footswitch with a software de-bounce
-*/
-void readFootswitch(FOOTSWITCH &fsw, int &currentChannel, LED &currentLed, ChannelSetting *settings[]) {
-  if (digitalRead(fsw.button) == HIGH) {
-    delay(10);
-    if (digitalRead(fsw.button) == HIGH) {
-      helper h = { fsw, currentChannel, currentLed };
-      h.checkFootswitch(settings);
-      delay(250);
-    }
-  }
-}

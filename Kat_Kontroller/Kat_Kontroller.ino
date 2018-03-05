@@ -1,12 +1,4 @@
-#include "FootswitchHelpers.h"
-
-
-int currentChannel;
-LED currentLed;
-ChannelSetting channel1 = default1;
-ChannelSetting channel2 = default2;
-ChannelSetting channel3 = default3;
-ChannelSetting *settings[] = { &channel1, &channel2, &channel3 };
+#include "Setup.h"
 
 void setup() {
 
@@ -23,15 +15,29 @@ void setup() {
     pinMode(leds[i].led, OUTPUT);
   }
 
-  helper h { fsw1, currentChannel, currentLed };
+  Helpers h { footswitches[0], currentChannel, currentLed, MODE };
   
   // set to channel 1
-  h.footswitchOn(settings);
+  h.footswitchOn(settings, leds, footswitches, defaults);
+}
+
+/*
+   Reads the footswitch with a software de-bounce
+*/
+void readFootswitch(FOOTSWITCH &fsw, int &currentChannel, LED &currentLed, ChannelSetting *settings[], boolean &MODE, LED leds[], FOOTSWITCH footswitches[] ) {
+  if (digitalRead(fsw.button) == HIGH) {
+    delay(10);
+    if (digitalRead(fsw.button) == HIGH) {
+      Helpers h = { fsw, currentChannel, currentLed, MODE };
+      h.checkFootswitch(settings, leds, footswitches, defaults);
+      delay(250);
+    }
+  }
 }
 
 void loop() {
   // read all footswitches
   for (int i = 0; i < 4; i = i + 1) {
-    readFootswitch(footswitches[i], currentChannel, currentLed, settings);
+    readFootswitch(footswitches[i], currentChannel, currentLed, settings, MODE, leds, footswitches);
   }
 }

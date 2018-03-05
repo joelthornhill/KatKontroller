@@ -1,3 +1,6 @@
+#include <MIDI.h>
+#include "Globals.h"
+
 struct LED {
   int led;
   boolean fxStatus;
@@ -27,4 +30,42 @@ struct ChannelSetting {
     else if(idx == 2) fx3 = value;
   }
 };
+
+struct Message {
+  int pcChannel;
+  int ccMessage;
+
+  void sendMessage(boolean isControl, boolean status) {
+    if (!isControl) {
+      if (debug) {
+        Serial.println("send pc message");
+        Serial.println(pcChannel);
+      } else {
+        MIDI.sendProgramChange(pcChannel, MIDI_CHANNEl);
+      }
+    } else if (isControl && status) {
+      if (debug) {
+        Serial.println("send cc message on");
+        Serial.println(ccMessage);
+      } else {
+        MIDI.sendControlChange(ccMessage, ccOn, MIDI_CHANNEl);
+      }
+    } else if (isControl && !status) {
+      if (debug) {
+        Serial.println("send cc message off");
+        Serial.println(ccMessage);
+      } else {
+        MIDI.sendControlChange(ccMessage, ccOff, MIDI_CHANNEl);
+      }
+    }
+  }
+};
+
+struct FOOTSWITCH {
+  int button;
+  LED led;
+  boolean func;
+  Message message;
+};
+
 
