@@ -44,18 +44,11 @@ const int fx3 = 18;
    Setup the buttons and LEDs for the controller
    Currently 4 buttons with an LED each
 */
-const int button1 = 2;
-const int button2 = 3;
-const int button3 = 4;
-const int button4 = 5;
 
 LED led1 = { 9 };
 LED led2 = { 10 };
 LED led3 = { 11 };
 LED led4 = { 12 };
-LED currentLed;
-
-int currentChannel;
 
 LED leds[] = {led1, led2, led3, led4};
 
@@ -73,9 +66,3 @@ ChannelSetting default1 = { 0, 0, 0, 0 };
 ChannelSetting default2 = { 1, 1, 0, 0 };
 ChannelSetting default3 = { 2, 0, 0, 0 };
 ChannelSetting defaults[] = { default1, default2, default3 };
-
-ChannelSetting channel1 = default1;
-ChannelSetting channel2 = default2;
-ChannelSetting channel3 = default3;
-
-ChannelSetting *settings[] = { &channel1, &channel2, &channel3 };

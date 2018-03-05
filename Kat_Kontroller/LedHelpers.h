@@ -6,7 +6,7 @@ void turnOffLeds(boolean fx) {
   }
 }
 
-void turnOffFxLeds() {
+void turnOffFxLeds(LED &currentLed) {
   turnOffLeds(true);
   currentLed.turnOn(true);
 }
