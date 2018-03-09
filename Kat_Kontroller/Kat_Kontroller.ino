@@ -7,7 +7,7 @@ void setup() {
 
   // buttons as input pins
   for (int i = 0; i < 4; i = i + 1) {
-    pinMode(footswitches[i].button, OUTPUT);
+    pinMode(footswitches[i].button, INPUT_PULLUP);
   }
 
   // leds as output pins
@@ -28,9 +28,9 @@ void setup() {
    Reads the footswitch with a software de-bounce
 */
 void readFootswitch(FOOTSWITCH &fsw, int &currentChannel, ChannelSetting *settings[], boolean &MODE, LED leds[], FOOTSWITCH footswitches[] ) {
-  if (digitalRead(fsw.button) == HIGH) {
+  if (digitalRead(fsw.button) == LOW) {
     delay(10);
-    if (digitalRead(fsw.button) == HIGH) {
+    if (digitalRead(fsw.button) == LOW) {
       Helpers h = { fsw, currentChannel, MODE };
       h.checkFootswitch(settings, leds, footswitches, defaults);
       delay(250);
