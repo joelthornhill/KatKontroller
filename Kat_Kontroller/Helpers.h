@@ -144,4 +144,38 @@ struct Helpers {
     }
   }
 
+  void blinkLeds(LED leds[]) {
+
+    for (int i = 0; i < 4; i = i + 1) {
+      digitalWrite(leds[i].led, HIGH);
+      delay(200);
+      digitalWrite(leds[i].led, LOW);
+      delay(200);
+    }
+
+
+    blinkAll(leds);
+    blinkAll(leds);
+  }
+
+  void blinkAll(LED leds[]) {
+    allLedsOn(leds);
+    delay(400);
+    allLedsOff(leds);
+    delay(400);
+  }
+
+  void allLedsOn(LED leds[]) {
+    for (int i = 0; i < 4; i = i + 1) {
+      digitalWrite(leds[i].led, HIGH);
+    }
+  }
+
+  void allLedsOff(LED leds[]) {
+    for (int i = 0; i < 4; i = i + 1) {
+      digitalWrite(leds[i].led, LOW);
+    }
+  }
+
+
 };

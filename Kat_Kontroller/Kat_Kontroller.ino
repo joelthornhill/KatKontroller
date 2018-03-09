@@ -15,41 +15,13 @@ void setup() {
     pinMode(leds[i].led, OUTPUT);
   }
 
-  // blink leds on start up
-  blinkLeds();
-
   Helpers h { footswitches[0], currentChannel, MODE };
+
+  // blink leds on start up
+  h.blinkLeds(leds);
 
   // set to channel 1
   h.footswitchOn(settings, leds, footswitches, defaults);
-}
-
-void blinkLeds() {
-
-  for (int i = 0; i < 4; i = i + 1) {
-    digitalWrite(leds[i].led, HIGH);
-    delay(200);
-    digitalWrite(leds[i].led, LOW);
-    delay(200);
-  }
-
-
-  blinkAll();
-  blinkAll();
-}
-
-void blinkAll() {
-  for (int i = 0; i < 4; i = i + 1) {
-    digitalWrite(leds[i].led, HIGH);
-  }
-
-  delay(400);
-
-  for (int i = 0; i < 4; i = i + 1) {
-    digitalWrite(leds[i].led, LOW);
-  }
-
-  delay(400);
 }
 
 /*
