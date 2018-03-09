@@ -1,7 +1,6 @@
 struct Helpers {
   FOOTSWITCH &fsw;
   int &currentChannel;
-  LED &currentLed;
   boolean &MODE;
 
   void turnOffLeds(boolean fx, LED leds[]) {
@@ -10,9 +9,14 @@ struct Helpers {
     }
   }
 
-  void turnOffFxLeds(LED leds[]) {
+  void turnOffFxLeds(LED leds[], FOOTSWITCH footswitches[]) {
     turnOffLeds(true, leds);
-    currentLed.turnOn(true);
+
+    for (int i = 0; i < 3; i = i + 1) {
+      if (footswitches[i].message.pcChannel == currentChannel) {
+        footswitches[i].led.turnOn(true);
+      }
+    }
   }
 
   /*
@@ -70,7 +74,6 @@ struct Helpers {
   void setChannel(ChannelSetting *settings[], LED leds[], ChannelSetting defaults[]) {
     resetFx(settings, defaults);
     turnOffLeds(true, leds);
-    currentLed = fsw.led;
     fsw.message.sendMessage(MODE, true);
     fsw.led.turnOn(false);
     currentChannel = fsw.message.pcChannel;
@@ -101,7 +104,7 @@ struct Helpers {
     turnOffLeds(false, leds);
     MODE = !MODE; // switch controller MODE
     if (!MODE) {
-      turnOffFxLeds(leds);
+      turnOffFxLeds(leds, footswitches);
     }
     else {
       turnOnFxLeds(settings, footswitches);

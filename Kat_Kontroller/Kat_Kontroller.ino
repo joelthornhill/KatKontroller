@@ -18,7 +18,7 @@ void setup() {
   // blink leds on start up
   blinkLeds();
 
-  Helpers h { footswitches[0], currentChannel, currentLed, MODE };
+  Helpers h { footswitches[0], currentChannel, MODE };
 
   // set to channel 1
   h.footswitchOn(settings, leds, footswitches, defaults);
@@ -55,11 +55,11 @@ void blinkAll() {
 /*
    Reads the footswitch with a software de-bounce
 */
-void readFootswitch(FOOTSWITCH &fsw, int &currentChannel, LED &currentLed, ChannelSetting *settings[], boolean &MODE, LED leds[], FOOTSWITCH footswitches[] ) {
+void readFootswitch(FOOTSWITCH &fsw, int &currentChannel, ChannelSetting *settings[], boolean &MODE, LED leds[], FOOTSWITCH footswitches[] ) {
   if (digitalRead(fsw.button) == HIGH) {
     delay(10);
     if (digitalRead(fsw.button) == HIGH) {
-      Helpers h = { fsw, currentChannel, currentLed, MODE };
+      Helpers h = { fsw, currentChannel, MODE };
       h.checkFootswitch(settings, leds, footswitches, defaults);
       delay(250);
     }
@@ -69,6 +69,6 @@ void readFootswitch(FOOTSWITCH &fsw, int &currentChannel, LED &currentLed, Chann
 void loop() {
   // read all footswitches
   for (int i = 0; i < 4; i = i + 1) {
-    readFootswitch(footswitches[i], currentChannel, currentLed, settings, MODE, leds, footswitches);
+    readFootswitch(footswitches[i], currentChannel, settings, MODE, leds, footswitches);
   }
 }

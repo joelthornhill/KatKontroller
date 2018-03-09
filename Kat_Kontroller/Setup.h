@@ -39,6 +39,5 @@ FOOTSWITCH footswitches[] = {
 boolean MODE = 0;
 
 int currentChannel;
-LED currentLed;
 
 
