@@ -27,7 +27,7 @@ FOOTSWITCH footswitches[] = {
   { button1, led1, false, Message { default1.channel, fx1 } }, 
   { button2, led2, false, Message { default2.channel, fx2 } }, 
   { button3, led3, false, Message { default3.channel, fx3 } }, 
-  { 5, led4, true, Message { 0, 0 } }
+  { button4, led4, true, Message { 0, 0 } }
 };
 
 /*

@@ -29,10 +29,10 @@ const int fx3 = 18;
 /*
    Set the arduino input/outputs for leds and buttons
 */
-const int ledOutput1 = 9;
-const int ledOutput2 = 10;
-const int ledOutput3 = 11;
-const int ledOutput4 = 12;
+const int ledOutput1 = 8;
+const int ledOutput2 = 9;
+const int ledOutput3 = 10;
+const int ledOutput4 = 11;
 
 const int button1 = 2;
 const int button2 = 3;

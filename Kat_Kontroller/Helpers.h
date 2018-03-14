@@ -3,21 +3,42 @@ struct Helpers {
   int &currentChannel;
   boolean &MODE;
 
+  int findFootswitchByChannel(FOOTSWITCH footswitches[]) {
+    for (int i = 0; i < 3; i = i + 1) {
+      if (footswitches[i].message.pcChannel == currentChannel) return i;
+    }
+  }
+
+  int findSettingsByChannel(ChannelSetting *settings[]) {
+    for (int i = 0; i < 3; i = i + 1) {
+      if (settings[i] -> channel == currentChannel) return i;
+    }
+  }
+
+  int findFootswitchByButton(FOOTSWITCH footswitches[]) {
+    for (int i = 0; i < 3; i = i + 1) {
+      if (fsw.button == footswitches[i].button) return i;
+    }
+  }
+
   void turnOffLeds(boolean fx, LED leds[]) {
     for (int i = 0; i < 4; i = i + 1) {
       leds[i].turnOff(fx);
     }
   }
 
-  void turnOffFxLeds(LED leds[], FOOTSWITCH footswitches[]) {
-    turnOffLeds(true, leds);
-
-    for (int i = 0; i < 3; i = i + 1) {
-      if (footswitches[i].message.pcChannel == currentChannel) {
-        footswitches[i].led.turnOn(true);
-      }
+   void turnOnLeds(boolean fx, LED leds[]) {
+    for (int i = 0; i < 4; i = i + 1) {
+      leds[i].turnOn(false);
     }
   }
+
+  void turnOffFxLeds(LED leds[], FOOTSWITCH footswitches[]) {
+    turnOffLeds(true, leds);
+    int index = findFootswitchByChannel(footswitches);
+    footswitches[index].led.turnOn(true);
+  }
+  
 
   /*
     When channel is changed Katana does not store fx statuses
@@ -46,13 +67,9 @@ struct Helpers {
      - check which button was pressed and update associated setting
   */
   void updateFx(boolean value, ChannelSetting *settings[], FOOTSWITCH footswitches[]) {
-    for (int i = 0; i < 3; i = i + 1) {
-      for (int j = 0; j < 3; j = j + 1) {
-        if (settings[i] -> channel == currentChannel && fsw.button == footswitches[j].button) {
-          settings[i] -> setFx(j, value);
-        }
-      }
-    }
+    int settingsIndex = findSettingsByChannel(settings);
+    int footswitchIndex = findFootswitchByButton(footswitches);
+    settings[settingsIndex] -> setFx(footswitchIndex, value);
   }
 
   /*
@@ -85,11 +102,10 @@ struct Helpers {
      For each fx turn on led if associated setting is set to true
   */
   void turnOnFxLeds(ChannelSetting *settings[], FOOTSWITCH footswitches[]) {
+    int settingsIndex =  findSettingsByChannel(settings);
     for (int i = 0; i < 3; i = i + 1) {
-      for (int j = 0; j < 3; j = j + 1) {
-        if (settings[i] -> channel == currentChannel && settings[i] -> getFx(j)) {
-          footswitches[j].led.turnOn(true);
-        }
+      if (settings[settingsIndex] -> getFx(i)) {
+        footswitches[i].led.turnOn(true);
       }
     }
   }
@@ -147,9 +163,9 @@ struct Helpers {
   void blinkLeds(LED leds[]) {
 
     for (int i = 0; i < 4; i = i + 1) {
-      digitalWrite(leds[i].led, HIGH);
+      leds[i].turnOn(false);
       delay(200);
-      digitalWrite(leds[i].led, LOW);
+      leds[i].turnOff(false);
       delay(200);
     }
 
@@ -159,23 +175,10 @@ struct Helpers {
   }
 
   void blinkAll(LED leds[]) {
-    allLedsOn(leds);
+    turnOnLeds(false, leds);
     delay(400);
-    allLedsOff(leds);
+    turnOffLeds(false, leds);
     delay(400);
   }
-
-  void allLedsOn(LED leds[]) {
-    for (int i = 0; i < 4; i = i + 1) {
-      digitalWrite(leds[i].led, HIGH);
-    }
-  }
-
-  void allLedsOff(LED leds[]) {
-    for (int i = 0; i < 4; i = i + 1) {
-      digitalWrite(leds[i].led, LOW);
-    }
-  }
-
 
 };
