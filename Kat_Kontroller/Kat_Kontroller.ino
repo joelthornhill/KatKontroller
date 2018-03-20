@@ -1,4 +1,6 @@
 #include "Setup.h"
+#include "Sysex.h"
+
 
 void setup() {
 
@@ -14,6 +16,10 @@ void setup() {
   for (int i = 0; i < 4; i = i + 1) {
     pinMode(leds[i].led, OUTPUT);
   }
+
+  Sysex s {}; 
+  MIDI.sendSysEx(13, s.getMessage(), true);
+
 
   Helpers h { footswitches[0], currentChannel, MODE };
 
