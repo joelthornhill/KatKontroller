@@ -33,8 +33,10 @@ const int ledOutput1 = 8;
 const int ledOutput2 = 9;
 const int ledOutput3 = 10;
 const int ledOutput4 = 11;
+const int ledOutput5 = 12;
 
 const int button1 = 2;
 const int button2 = 3;
 const int button3 = 4;
 const int button4 = 5;
+const int button5 = 7;

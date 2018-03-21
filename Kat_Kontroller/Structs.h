@@ -35,13 +35,16 @@ struct Message {
   int pcChannel;
   int ccMessage;
 
-  void sendMessage(boolean isControl, boolean status) {
+  void sendMessage(boolean isControl, boolean status, boolean bank) {
     if (!isControl) {
+      int channel;
+      if(bank) channel = pcChannel + 5;
+      else channel = pcChannel;
       if (debug) {
         Serial.println("send pc message");
-        Serial.println(pcChannel);
+        Serial.println(channel);
       } else {
-        MIDI.sendProgramChange(pcChannel, MIDI_CHANNEl);
+        MIDI.sendProgramChange(channel, MIDI_CHANNEl);
       }
     } else if (isControl && status) {
       if (debug) {
@@ -64,7 +67,7 @@ struct Message {
 struct FOOTSWITCH {
   int button;
   LED led;
-  boolean func;
+  String func;
   Message message;
 };
 

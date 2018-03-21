@@ -2,6 +2,7 @@ struct Helpers {
   FOOTSWITCH &fsw;
   int &currentChannel;
   boolean &MODE;
+  boolean &BANK;
 
   int findFootswitchByChannel(FOOTSWITCH footswitches[]) {
     for (int i = 0; i < 3; i = i + 1) {
@@ -22,13 +23,15 @@ struct Helpers {
   }
 
   void turnOffLeds(boolean fx, LED leds[]) {
-    for (int i = 0; i < 4; i = i + 1) {
+    for (int i = 0; i < 5; i = i + 1) {
       leds[i].turnOff(fx);
     }
+
+    if (BANK) leds[4].turnOn(false);
   }
 
-   void turnOnLeds(boolean fx, LED leds[]) {
-    for (int i = 0; i < 4; i = i + 1) {
+  void turnOnLeds(boolean fx, LED leds[]) {
+    for (int i = 0; i < 5; i = i + 1) {
       leds[i].turnOn(false);
     }
   }
@@ -38,7 +41,7 @@ struct Helpers {
     int index = findFootswitchByChannel(footswitches);
     footswitches[index].led.turnOn(true);
   }
-  
+
 
   /*
     When channel is changed Katana does not store fx statuses
@@ -58,7 +61,7 @@ struct Helpers {
   */
   void turnFxOff() {
     fsw.led.turnOff(true);
-    fsw.message.sendMessage(MODE, false);
+    fsw.message.sendMessage(MODE, false, BANK);
   }
 
   /*
@@ -76,7 +79,7 @@ struct Helpers {
      Turn on fx with midi message, turn on led and save settings
   */
   void turnFxOn(ChannelSetting *settings[], FOOTSWITCH footswitches[] ) {
-    fsw.message.sendMessage(MODE, true);
+    fsw.message.sendMessage(MODE, true, BANK);
     fsw.led.turnOn(true);
     updateFx(true, settings, footswitches);
   }
@@ -91,7 +94,7 @@ struct Helpers {
   void setChannel(ChannelSetting *settings[], LED leds[], ChannelSetting defaults[]) {
     resetFx(settings, defaults);
     turnOffLeds(true, leds);
-    fsw.message.sendMessage(MODE, true);
+    fsw.message.sendMessage(MODE, true, BANK);
     fsw.led.turnOn(false);
     currentChannel = fsw.message.pcChannel;
   }
@@ -106,6 +109,9 @@ struct Helpers {
     for (int i = 0; i < 3; i = i + 1) {
       if (settings[settingsIndex] -> getFx(i)) {
         footswitches[i].led.turnOn(true);
+      }
+      else {
+        footswitches[i].led.turnOff(true);
       }
     }
   }
@@ -129,14 +135,40 @@ struct Helpers {
   }
 
   /*
+     Switches bank between A/B for extra channels
+     Does not switch mode so you can change bank in fx mode
+  */
+  void changeBank(ChannelSetting *settings[], FOOTSWITCH footswitches[], ChannelSetting defaults[], LED leds[]) {
+    BANK = !BANK;
+    if (BANK) fsw.led.turnOn(false);
+    else fsw.led.turnOff(false);
+
+    int index = findFootswitchByChannel(footswitches);
+    footswitches[index].message.sendMessage(false, false, BANK);
+    resetFx(settings, defaults);
+
+    turnOffLeds(true, leds);
+
+    if (!MODE) {
+      footswitches[index].led.turnOn(false);
+    }
+    else {
+      // turn on Mode leds
+      footswitches[3].led.turnOn(false);
+      turnOnFxLeds(settings, footswitches);
+    }
+  }
+
+  /*
      Footswitch is turned on, multiple options
      If PC mode and not a function press -> set channel
      If function press -> change mode
      otherwise turn on fx
   */
   void footswitchOn(ChannelSetting *settings[], LED leds[], FOOTSWITCH footswitches[], ChannelSetting defaults[]) {
-    if (!MODE && !fsw.func) setChannel(settings, leds, defaults);
-    else if (fsw.func) changeMode(settings, leds, footswitches);
+    if (!MODE && fsw.func == "") setChannel(settings, leds, defaults);
+    else if (fsw.func == "mode") changeMode(settings, leds, footswitches);
+    else if (fsw.func == "bank") changeBank(settings, footswitches, defaults, leds);
     else turnFxOn(settings, footswitches);
   }
 
@@ -151,7 +183,7 @@ struct Helpers {
         then footswitch off
   */
   void checkFootswitch(ChannelSetting *settings[], LED leds[], FOOTSWITCH footswitches[], ChannelSetting defaults[]) {
-    if ((!MODE) || (!fsw.led.fxStatus && MODE) || fsw.func) {
+    if ((!MODE) || (!fsw.led.fxStatus && MODE) || fsw.func != "") {
       footswitchOn(settings, leds, footswitches, defaults);
     }
     else if (fsw.led.fxStatus && MODE) {
@@ -162,7 +194,7 @@ struct Helpers {
 
   void blinkLeds(LED leds[]) {
 
-    for (int i = 0; i < 4; i = i + 1) {
+    for (int i = 0; i < 5; i = i + 1) {
       leds[i].turnOn(false);
       delay(200);
       leds[i].turnOff(false);

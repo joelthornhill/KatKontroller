@@ -6,16 +6,16 @@ void setup() {
   else Serial.begin(31250);
 
   // buttons as input pins
-  for (int i = 0; i < 4; i = i + 1) {
+  for (int i = 0; i < 5; i = i + 1) {
     pinMode(footswitches[i].button, INPUT_PULLUP);
   }
 
   // leds as output pins
-  for (int i = 0; i < 4; i = i + 1) {
+  for (int i = 0; i < 5; i = i + 1) {
     pinMode(leds[i].led, OUTPUT);
   }
 
-  Helpers h { footswitches[0], currentChannel, MODE };
+  Helpers h { footswitches[0], currentChannel, MODE, BANK };
 
   // blink leds on start up
   h.blinkLeds(leds);
@@ -31,7 +31,7 @@ void readFootswitch(FOOTSWITCH &fsw, int &currentChannel, ChannelSetting *settin
   if (digitalRead(fsw.button) == LOW) {
     delay(10);
     if (digitalRead(fsw.button) == LOW) {
-      Helpers h = { fsw, currentChannel, MODE };
+      Helpers h = { fsw, currentChannel, MODE, BANK };
       h.checkFootswitch(settings, leds, footswitches, defaults);
       delay(250);
     }
@@ -40,7 +40,7 @@ void readFootswitch(FOOTSWITCH &fsw, int &currentChannel, ChannelSetting *settin
 
 void loop() {
   // read all footswitches
-  for (int i = 0; i < 4; i = i + 1) {
+  for (int i = 0; i < 5; i = i + 1) {
     readFootswitch(footswitches[i], currentChannel, settings, MODE, leds, footswitches);
   }
 }
