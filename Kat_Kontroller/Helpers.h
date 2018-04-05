@@ -42,20 +42,6 @@ struct Helpers {
     footswitches[index].led.turnOn(true);
   }
 
-
-  /*
-    When channel is changed Katana does not store fx statuses
-    Therefore reset back to defaults
-    TODO: Fire off cc messages along with channel change to avoid this
-  */
-  void resetFx(ChannelSetting *settings[], ChannelSetting defaults[]) {
-    for (int i = 0; i < 3; i = i + 1) {
-      for (int j = 0; j < 3; j = j + 1) {
-        settings[i] -> setFx(j, defaults[i].getFx(j));
-      }
-    }
-  }
-
   /*
      Turn off fx with midi message, turn off led and save settings
   */
@@ -86,33 +72,33 @@ struct Helpers {
 
   /*
      Switch the Katana channel
-     - reset fx to the default
      - turn off leds except selected channel
      - send midi message
      - set currentChannel to the new channel
   */
-  void setChannel(ChannelSetting *settings[], LED leds[], ChannelSetting defaults[]) {
-    resetFx(settings, defaults);
+  void setChannel(ChannelSetting *settings[], LED leds[], ChannelSetting defaults[], FOOTSWITCH footswitches[]) {
     turnOffLeds(true, leds);
     fsw.message.sendMessage(MODE, true, BANK);
     fsw.led.turnOn(false);
     currentChannel = fsw.message.pcChannel;
+    setAllFx(settings, footswitches);
   }
 
 
   /*
      Find settings for current channel
-     For each fx turn on led if associated setting is set to true
+     For each fx send update to Katana to keep in sync
+     If in CC mode then also update the leds
   */
-  void turnOnFxLeds(ChannelSetting *settings[], FOOTSWITCH footswitches[]) {
+  void setAllFx(ChannelSetting *settings[], FOOTSWITCH footswitches[]) {
     int settingsIndex =  findSettingsByChannel(settings);
     for (int i = 0; i < 3; i = i + 1) {
-      if (settings[settingsIndex] -> getFx(i)) {
-        footswitches[i].led.turnOn(true);
-      }
-      else {
-        footswitches[i].led.turnOff(true);
-      }
+      boolean status = settings[settingsIndex] -> getFx(i);
+      
+      if (status && MODE) footswitches[i].led.turnOn(true);
+      else if(MODE) footswitches[i].led.turnOff(true);
+      
+      footswitches[i].message.sendMessage(true, status, BANK);
     }
   }
 
@@ -129,7 +115,7 @@ struct Helpers {
       turnOffFxLeds(leds, footswitches);
     }
     else {
-      turnOnFxLeds(settings, footswitches);
+      setAllFx(settings, footswitches);
       fsw.led.turnOn(false);
     }
   }
@@ -145,17 +131,17 @@ struct Helpers {
 
     int index = findFootswitchByChannel(footswitches);
     footswitches[index].message.sendMessage(false, false, BANK);
-    resetFx(settings, defaults);
 
     turnOffLeds(true, leds);
 
     if (!MODE) {
       footswitches[index].led.turnOn(false);
+      setAllFx(settings, footswitches);
     }
     else {
       // turn on Mode leds
       footswitches[3].led.turnOn(false);
-      turnOnFxLeds(settings, footswitches);
+      setAllFx(settings, footswitches);
     }
   }
 
@@ -166,7 +152,7 @@ struct Helpers {
      otherwise turn on fx
   */
   void footswitchOn(ChannelSetting *settings[], LED leds[], FOOTSWITCH footswitches[], ChannelSetting defaults[]) {
-    if (!MODE && fsw.func == "") setChannel(settings, leds, defaults);
+    if (!MODE && fsw.func == "") setChannel(settings, leds, defaults, footswitches);
     else if (fsw.func == "mode") changeMode(settings, leds, footswitches);
     else if (fsw.func == "bank") changeBank(settings, footswitches, defaults, leds);
     else turnFxOn(settings, footswitches);
