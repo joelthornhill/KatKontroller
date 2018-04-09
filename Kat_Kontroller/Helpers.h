@@ -58,7 +58,7 @@ struct Helpers {
   void updateFx(boolean value, ChannelSetting *settings[], FOOTSWITCH footswitches[]) {
     int settingsIndex = findSettingsByChannel(settings);
     int footswitchIndex = findFootswitchByButton(footswitches);
-    settings[settingsIndex] -> setFx(footswitchIndex, value);
+    settings[settingsIndex] -> setFx(footswitchIndex, value, BANK);
   }
 
   /*
@@ -93,7 +93,7 @@ struct Helpers {
   void setAllFx(ChannelSetting *settings[], FOOTSWITCH footswitches[]) {
     int settingsIndex =  findSettingsByChannel(settings);
     for (int i = 0; i < 3; i = i + 1) {
-      boolean status = settings[settingsIndex] -> getFx(i);
+      boolean status = settings[settingsIndex] -> getFx(i, BANK);
       
       if (status && MODE) footswitches[i].led.turnOn(true);
       else if(MODE) footswitches[i].led.turnOff(true);

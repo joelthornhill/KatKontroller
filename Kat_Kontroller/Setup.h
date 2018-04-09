@@ -17,9 +17,9 @@ LED leds[] = {led1, led2, led3, led4, led5};
    However, when you change channel these settings are lost and revert back to defaults
    TODO: There is scope to send CC messages on channel change to keep in sync and avoid reverting back to defaults
 */
-ChannelSetting default1 = { 0, 0, 0, 0 };
-ChannelSetting default2 = { 1, 1, 0, 0 };
-ChannelSetting default3 = { 2, 0, 0, 0 };
+ChannelSetting default1 = { 0, 0, 0, 0, 1, 0, 0 };
+ChannelSetting default2 = { 1, 1, 0, 0, 0, 0, 0 };
+ChannelSetting default3 = { 2, 0, 0, 0, 1, 1, 1 };
 
 ChannelSetting defaults[] = { default1, default2, default3 };
 ChannelSetting *settings[] = { &default1, &default2, &default3 };

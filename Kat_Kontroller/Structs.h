@@ -19,15 +19,24 @@ struct ChannelSetting {
   boolean fx1;
   boolean fx2;
   boolean fx3;
-  boolean getFx(int idx) {
-    if(idx == 0) return fx1;
-    else if(idx == 1) return fx2;
-    else if(idx == 2) return fx3;
+  boolean fx1B;
+  boolean fx2B;
+  boolean fx3B;
+
+  boolean getFx(int idx, boolean bank) {
+    if (idx == 0) return decideFx(&fx1, &fx1B, bank);
+    else if (idx == 1) return decideFx(&fx2, &fx2B, bank);
+    else if (idx == 2) return decideFx(&fx3, &fx3B, bank);
   }
-  void setFx(int idx, boolean value) {
-    if(idx == 0) fx1 = value;
-    else if(idx == 1) fx2 = value;
-    else if(idx == 2) fx3 = value;
+  void setFx(int idx, boolean value, boolean bank) {
+    if(idx == 0) decideFx(&fx1, &fx1B, bank) = value;
+    else if(idx == 1) decideFx(&fx2, &fx2B, bank) = value;
+    else if (idx == 2) decideFx(&fx3, &fx3B, bank) = value;
+  }
+
+  boolean& decideFx(boolean *fx, boolean *bankfx, boolean bank) {
+    if (bank) return *bankfx;
+    else return *fx;
   }
 };
 
